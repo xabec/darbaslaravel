@@ -4,7 +4,7 @@ Clone the repository
 
 Switch to the repo folder
 
-    cd tictactoe
+    cd darbaslaravel
 
 Install all the dependencies using composer
 
