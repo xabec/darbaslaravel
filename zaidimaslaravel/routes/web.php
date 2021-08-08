@@ -22,4 +22,9 @@ Route::post('api/games', [GameController::class, 'action']);
 
 Route::get('api/games', [GameController::class, 'index']);
 
-Route::post('api/games/{id}', 'GameController@delete');
+Route::post('api/games/finish', [GameController::class, 'finish']);
+
+Route::get('api/games/restart', [GameController::class, 'restart']);
+
+Route::get('api/games/read', [GameController::class, 'read']);
+

@@ -56,6 +56,7 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 //
 //
 //
+//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: 'Game',
   components: {
@@ -69,12 +70,13 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
       stepNumber: 0,
       currentPlayer: 'X',
       winner: null,
-      lastgame: ''
+      lastgame: '',
+      winnerint: 0,
+      dblog: ''
     };
   },
   mounted: function mounted() {
-    this.lastgame = this.$store.dispatch('fetchGame');
-    console.log(this.lastgame);
+    this.$store.dispatch('fetchGame');
   },
   methods: {
     hasWinner: function hasWinner() {
@@ -90,6 +92,19 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
         if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
           this.winner = [a, b, c];
+
+          if (this.currentPlayer === 'X') {
+            this.winnerint = 1;
+          } else {
+            this.winnerint = 0;
+          }
+
+          this.$store.dispatch('finishGame', {
+            game: window.lastgame,
+            winner: this.winnerint
+          });
+          this.$store.dispatch('getLastEntry');
+          this.dblog = window.lastentry;
           return true;
         }
       }
@@ -98,17 +113,22 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
     },
     restart: function restart() {
       this.squares = Array(9).fill(null);
-      this.stepNumber = 0;
-      this.currentPlayer = this.currentPlayer;
+      this.stepNumber = 0; // this.currentPlayer = this.currentPlayer
+
       this.winner = null;
+      this.lastgame = window.lastgame++;
+      this.$store.dispatch('createGame');
     },
     click: function click(i) {
       if (this.squares[i] || this.winner) return;
       this.$set(this.squares, i, this.currentPlayer);
       this.$store.dispatch('sendAction', {
+        game: window.lastgame,
         slot: i,
         action: this.squares[i]
       });
+      this.$store.dispatch('getLastEntry');
+      this.dblog = window.lastentry;
 
       if (!this.hasWinner()) {
         this.stepNumber++;
@@ -136,7 +156,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "\n.game[data-v-684e62d4] {\n    background-color: green;\n    height: 100vh;\n    display: flex;\n    justify-content: center;\n    align-items: center;\n}\n.game-title[data-v-684e62d4] {\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    margin: 0 0 3vmin;\n}\n.game-title h1[data-v-684e62d4] {\n    margin: 0;\n    font-size: 2.25em;\n}\n.game-info[data-v-684e62d4] {\n    margin: 3vmin 0 0;\n    padding: 1rem .5rem;\n    font-size: 1.25em;\n    text-align: center;\n    border-radius: .5rem;\n    background: #fff6;\n    color: #111;\n}\n.game-info p[data-v-684e62d4] {\n    margin: 0;\n    display: flex;\n    justify-content: center;\n    align-items: center;\n}\n.game-info .X[data-v-684e62d4] {\n    color: #c14016;\n}\n.game-info .O[data-v-684e62d4] {\n    color: #847904;\n}\n.game-info button[data-v-684e62d4] {\n    text-transform: uppercase;\n    font-weight: 600;\n    font-size: .75em;\n    padding: .5rem 1rem;\n    margin: -.5rem 0 -.5rem 1rem;\n    border: 2px solid #fff;\n    background: #fff5;\n    color: #111;\n    cursor: pointer;\n    transition: all .25s ease;\n}\n.game-info button[data-v-684e62d4]:hover {\n    background: #1115;\n}\n.game-info button[data-v-684e62d4]:active {\n    background: #1119;\n}\n\n", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, "\n.game[data-v-684e62d4] {\n    background-color: green;\n    height: 100vh;\n    display: flex;\n    justify-content: center;\n    align-items: center;\n}\n.game-title[data-v-684e62d4] {\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    margin: 0 0 3vmin;\n}\n.game-title h1[data-v-684e62d4] {\n    margin: 0;\n    font-size: 2.25em;\n}\n.game-info[data-v-684e62d4] {\n    margin: 3vmin 0 0;\n    padding: 1rem .5rem;\n    font-size: 1.25em;\n    text-align: center;\n    border-radius: .5rem;\n    background: #fff6;\n    color: #111;\n    overflow-y: scroll;\n}\n.game-info p[data-v-684e62d4] {\n    margin: 0;\n    display: flex;\n    justify-content: center;\n    align-items: center;\n}\n.game-info .X[data-v-684e62d4] {\n    color: #c14016;\n}\n.game-info .O[data-v-684e62d4] {\n    color: #847904;\n}\n.game-info button[data-v-684e62d4] {\n    text-transform: uppercase;\n    font-weight: 600;\n    font-size: .75em;\n    padding: .5rem 1rem;\n    margin: -.5rem 0 -.5rem 1rem;\n    border: 2px solid #fff;\n    background: #fff5;\n    color: #111;\n    cursor: pointer;\n    transition: all .25s ease;\n}\n.game-info button[data-v-684e62d4]:hover {\n    background: #1115;\n}\n.game-info button[data-v-684e62d4]:active {\n    background: #1119;\n}\n\n", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -293,7 +313,7 @@ var render = function() {
               ])
             : !!_vm.winner
             ? _c("p", [
-                _vm._v("\n                The winner is: \n                "),
+                _vm._v("\n                The winner is: "),
                 _c("b", { class: _vm.currentPlayer }, [
                   _vm._v(_vm._s(_vm.currentPlayer))
                 ]),
@@ -310,11 +330,18 @@ var render = function() {
                 ])
               ])
             : _c("p", [
+                _vm._v("\n                Game: "),
+                _c("b", [_vm._v(" " + _vm._s(_vm.dblog["game"]) + " ")]),
+                _vm._v(" Slot: "),
+                _c("b", [_vm._v(" " + _vm._s(_vm.dblog["slot"]) + " ")]),
+                _vm._v(" Action: "),
+                _c("b", [_vm._v(" " + _vm._s(_vm.dblog["action"]))]),
+                _c("br"),
                 _vm._v("\n                 Player with\n                "),
                 _c("b", { class: _vm.currentPlayer }, [
-                  _vm._v(_vm._s(_vm.currentPlayer))
+                  _vm._v(_vm._s(_vm.currentPlayer) + " ")
                 ]),
-                _vm._v("! move.\n\n\n            ")
+                _vm._v("! move.\n\n            ")
               ])
         ])
       ],

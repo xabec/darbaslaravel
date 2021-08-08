@@ -1956,9 +1956,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_0__);
 
 var actions = {
-  createGame: function createGame(_ref, game) {
+  createGame: function createGame(_ref) {
     var commit = _ref.commit;
-    axios__WEBPACK_IMPORTED_MODULE_0___default().post('/api/games', game).then(function (res) {
+    axios__WEBPACK_IMPORTED_MODULE_0___default().get('/api/games/restart').then(function (res) {
+      window.lastgame = res.data.id;
       commit('CREATE_GAME', res.data);
     })["catch"](function (err) {
       console.log(err);
@@ -1967,6 +1968,7 @@ var actions = {
   fetchGame: function fetchGame(_ref2) {
     var commit = _ref2.commit;
     axios__WEBPACK_IMPORTED_MODULE_0___default().get('/api/games').then(function (res) {
+      window.lastgame = res.data.id;
       commit('FETCH_GAME', res.data);
     })["catch"](function (err) {
       console.log(err);
@@ -1976,6 +1978,21 @@ var actions = {
     var commit = _ref3.commit;
     axios__WEBPACK_IMPORTED_MODULE_0___default().post("/api/games", game).then(function (res) {
       if (res.data === 'ok') commit('SEND_ACTION', game);
+    })["catch"](function (err) {
+      console.log(err);
+    });
+  },
+  finishGame: function finishGame(_ref4, game) {
+    var commit = _ref4.commit;
+    axios__WEBPACK_IMPORTED_MODULE_0___default().post('/api/games/finish', game).then(function (res) {
+      if (res.data === 'ok') console.log('finished');
+    })["catch"](function (err) {
+      console.log(err);
+    });
+  },
+  getLastEntry: function getLastEntry() {
+    axios__WEBPACK_IMPORTED_MODULE_0___default().get('api/games/read').then(function (res) {
+      window.lastentry = res.data;
     })["catch"](function (err) {
       console.log(err);
     });
@@ -2055,17 +2072,15 @@ __webpack_require__.r(__webpack_exports__);
 var mutations = {
   CREATE_GAME: function CREATE_GAME(state, game) {
     state.games.unshift(game);
-    console.debug('create_game');
   },
   FETCH_GAME: function FETCH_GAME(state, game) {
-    return state.games = game;
+    return state.games[1] = game;
   },
   SEND_ACTION: function SEND_ACTION(state, game, action) {
     var index = state.games.findIndex(function (item) {
       return item.id === game.id;
     });
     state.actions.unshift(index, action);
-    console.debug('send_action');
   }
 };
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (mutations);

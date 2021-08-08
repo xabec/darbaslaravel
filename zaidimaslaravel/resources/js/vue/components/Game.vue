@@ -12,8 +12,7 @@
                     Game started! Player with:&nbsp;<b :class="currentPlayer">{{ currentPlayer }}</b>! move.
                 </p>
                 <p v-else-if="!!winner">
-                    The winner is:&nbsp;
-                    <b :class="currentPlayer">{{ currentPlayer }}</b>!&nbsp;
+                    The winner is:&nbsp;<b :class="currentPlayer">{{ currentPlayer }}</b>!&nbsp;
                     <button @click="restart">Restart game</button>
                 </p>
                 <p v-else-if="stepNumber > 8">
@@ -21,9 +20,11 @@
                     <button @click="restart">Restart game</button>
                 </p>
                 <p v-else>
+                    Game: <b> {{ dblog['game'] }} </b> Slot: <b> {{ dblog['slot'] }} </b> Action: <b> {{
+                        dblog['action']
+                    }}</b><br>
                     &nbsp;Player with
-                    <b :class="currentPlayer">{{ currentPlayer }}</b>!&nbsp;move.
-
+                    <b :class="currentPlayer">{{ currentPlayer }} </b>!&nbsp;move.
 
                 </p>
             </div>
@@ -44,10 +45,12 @@ export default {
             currentPlayer: 'X',
             winner: null,
             lastgame: '',
+            winnerint: 0,
+            dblog: '',
         }
     },
     mounted() {
-        this.lastgame = this.$store.dispatch('fetchGame');
+        this.$store.dispatch('fetchGame')
     },
     methods: {
         hasWinner() {
@@ -63,6 +66,14 @@ export default {
                 const [a, b, c] = matches[i]
                 if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
                     this.winner = [a, b, c]
+                    if (this.currentPlayer === 'X') {
+                        this.winnerint = 1;
+                    } else {
+                        this.winnerint = 0;
+                    }
+                    this.$store.dispatch('finishGame', {game: window.lastgame, winner: this.winnerint})
+                    this.$store.dispatch('getLastEntry')
+                    this.dblog = window.lastentry
                     return true
                 }
             }
@@ -73,15 +84,18 @@ export default {
         restart() {
             this.squares = Array(9).fill(null)
             this.stepNumber = 0
-            this.currentPlayer = this.currentPlayer
+            // this.currentPlayer = this.currentPlayer
             this.winner = null
+            this.lastgame = window.lastgame++
+            this.$store.dispatch('createGame')
         },
 
         click(i) {
             if (this.squares[i] || this.winner) return
             this.$set(this.squares, i, this.currentPlayer);
-            console.log(this.lastgame)
-            this.$store.dispatch('sendAction', {slot: i, action: this.squares[i]})
+            this.$store.dispatch('sendAction', {game: window.lastgame, slot: i, action: this.squares[i]})
+            this.$store.dispatch('getLastEntry')
+            this.dblog = window.lastentry
             if (!this.hasWinner()) {
                 this.stepNumber++
                 this.currentPlayer = this.currentPlayer === 'X' ? 'O' : 'X'
@@ -120,6 +134,7 @@ export default {
     border-radius: .5rem;
     background: #fff6;
     color: #111;
+    overflow-y: scroll;
 }
 
 .game-info p {
